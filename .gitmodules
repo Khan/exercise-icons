@@ -1,0 +1,3 @@
+[submodule "libs3"]
+	path = libs3
+	url = http://git.ischo.com/libs3.git
