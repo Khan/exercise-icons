@@ -35,7 +35,7 @@ the site in the future.
 filled with your S3 credentials and bucket name as follows:
 
     ACCESS_KEY = "ACCESS_KEY",
-    SECRET_KEY = "SECRETS_KEY",
+    SECRET_KEY = "SECRET_KEY",
     BUCKET = "BUCKET_NAME"
 
 Then, to generate all icons used by the common core map:
