@@ -13,8 +13,8 @@ Resulting icons are uploaded to [Amazon EC2](https://aws.amazon.com/ec2/) via
 
 This project is related to but independent from
 [exercise-screens](https://github.com/khan/exercise-screens). exercise-screens
-takes a screenshot of every #exercise# on Khan Academy, whereas exercise-icons
-creates an icon for every problem #type#. There are usually multiple problem
+takes a screenshot of every __exercise__ on Khan Academy, whereas exercise-icons
+creates an icon for every problem __type__. There are usually multiple problem
 types per exercise. In addition, exercise-icons aims to create icons that look
 good anywhere from 64x64 to 256x256 by focusing on the most exciting area of an
 exercise, whereas exercise-screens aims to show the entire exercise.
@@ -42,8 +42,8 @@ Then, to generate all icons used by the common core map:
 
     ./sync.d Math.CC
 
-exercise-icons requires [dlang](http://dlang.org/) including rdmd, curl,
-casperjs, and imagemagick. libs3 is also used but is downloaded on publish.
+exercise-icons requires [dlang](http://dlang.org/) (including rdmd), curl,
+casperjs, and imagemagick. libs3 is also used but is attached as a submodule.
 
 ## Running `exercise-icons`
 
