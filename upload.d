@@ -1,4 +1,4 @@
-import Deimos_libs3.D.s3;
+import s3;
 
 import std.algorithm;
 import std.conv;
