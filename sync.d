@@ -1,4 +1,4 @@
-#!/usr/bin/rdmd --shebang -J. -L-lcurl -L-Llibs3/build/lib -L-ls3 -L-lxml2
+#!/usr/bin/rdmd --shebang -J. -L-Llibs3/build/lib -L-ls3 -L-lxml2 -L-lcurl
 /**
  * Usage: ./sync.d Math.CC
  *   <or> ./sync.d Math.CC.3
@@ -57,16 +57,11 @@ int main(string args[]) {
     /////
     "Getting all tags and exercises...".writeln;
 
-    auto allTagChunks =
+    auto allTags =
         "http://www.khanacademy.org/api/v1/assessment_items/tags"
-        .byChunkAsync;
-
-    auto allExerciseChunks =
-        "http://www.khanacademy.org/api/v1/exercises"
-        .byChunkAsync;
-
-    auto allTags = allTagChunks
-        .parseAsyncJSON
+       .get
+        .replace("\\u0000", "") // Not a valid JSON control character
+        .parseJSON
         .array
         .map!(t => new Tag(
             t["id"].str,
@@ -79,8 +74,11 @@ int main(string args[]) {
     auto ccTags =
         allTags.filter!(t => t.name.startsWith(prefix));
 
-    auto allExercises = allExerciseChunks
-        .parseAsyncJSON
+    auto allExercises =
+        "http://www.khanacademy.org/api/v1/exercises"
+       .get
+        .replace("\\u0000", "") // Not a valid JSON control character
+        .parseJSON
         .array
         .map!(e => new Exercise(
             e["name"].str,
