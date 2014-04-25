@@ -119,7 +119,7 @@ int main(string args[]) {
 
     AssessmentItem[string] items;
 
-    auto taskPool30 = new TaskPool(30);
+    auto taskPool30 = new TaskPool(4);
     foreach(tag; taskPool30.parallel(ccTags, 1)) {
         ("\t" ~ tag.name ~ "...").writeln;
 
@@ -219,6 +219,7 @@ int main(string args[]) {
                             exercise.items
                                 .sort!((pt1, pt2) => pt1.problemTypeId < pt2.problemTypeId)
                                 .uniq!((pt1, pt2) => pt1.problemTypeId == pt2.problemTypeId)
+                                .filter!(pt => pt.problemTypeId)
                                 .map!((pt) =>
                                     "https://www.khanacademy.org/preview/content/items/" ~ pt.id)
                                 .array
@@ -277,7 +278,7 @@ int main(string args[]) {
 
     auto i = screenshotItems.length;
 
-    auto taskPool8 = new TaskPool(8);
+    auto taskPool8 = new TaskPool(2);
     auto s3Future = opts.get("dry-run", false) ? null : task!(() => new shared S3Connection);
     if (s3Future) {
         taskPool8.put(s3Future);
