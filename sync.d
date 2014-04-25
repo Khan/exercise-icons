@@ -1,4 +1,4 @@
-#!/usr/bin/rdmd --shebang -J. -L-Llibs3/build/lib -L-ls3 -L-lxml2 -L-lcurl
+#!/usr/bin/rdmd --shebang -J. -L-Llibs3/build/lib -L-ls3 -L-lxml2 -L-lcurl -IDeimos_libs3/D
 /**
  * Usage: ./sync.d Math.CC
  *   <or> ./sync.d Math.CC.3
@@ -190,7 +190,7 @@ int main(string args[]) {
     //////
     if (opts.get("generate-report", false)) {
         "Writting skill type report...".writeln;
-        ("CC tag\tSkill Name\tType\tPreview\tAssociated CC tags\n" ~
+        ("CC tag\tSkill Name\tAssociated CC tags\tPreviews\n" ~
             ccTags
                 .array // sort needs to know size
                 .sort!((tag1, tag2) => tag1.name < tag2.name)
@@ -200,33 +200,31 @@ int main(string args[]) {
                     .map!(delegate (exercise) { return
                         exercise.isKhanExercise ?
 
-                            [[tag.name,
+                            ([tag.name,
                              exercise.title,
-                             "Legacy (see preview for count)",
-                             "http://sandcastle.kasandbox.org/media/castles/Khan:master/exercises/" ~ exercise.id.replace(" ", "_") ~ ".html",
                              exercise.tags
                                 .map!(tag => tag.name)
                                 .filter!(thisTag => thisTag.startsWith("Math.CC"))
                                 .filter!(thisTag => thisTag != tag.name)
-                                .join(",")]] : 
+                                .join(","),
+                             "http://sandcastle.kasandbox.org/media/castles/Khan:master/exercises/" ~ exercise.id.replace(" ", "_") ~ ".html"]).array : 
 
-                        exercise.items
-                            .sort!((pt1, pt2) => pt1.problemTypeId < pt2.problemTypeId)
-                            .uniq!((pt1, pt2) => pt1.problemTypeId == pt2.problemTypeId)
-                            .map!((pt) => [ // define columns:
-                                tag.name,
-                                exercise.title,
-                                pt.problemTypeId.to!string,
-                                "https://www.khanacademy.org/preview/content/items/" ~ pt.id,
-                                pt.tags
-                                    .map!(tag => tag.name)
-                                    .filter!(thisTag => thisTag.startsWith("Math.CC"))
-                                    .filter!(thisTag => thisTag != tag.name)
-                                    .join(",")
-                        ]).array;
+                            ([tag.name,
+                             exercise.title,
+                             exercise.items.length ? exercise.items[0].tags
+                                 .map!(tag => tag.name)
+                                 .filter!(thisTag => thisTag.startsWith("Math.CC"))
+                                 .filter!(thisTag => thisTag != tag.name)
+                                 .join(",") : ""] ~
+                            exercise.items
+                                .sort!((pt1, pt2) => pt1.problemTypeId < pt2.problemTypeId)
+                                .uniq!((pt1, pt2) => pt1.problemTypeId == pt2.problemTypeId)
+                                .map!((pt) =>
+                                    "https://www.khanacademy.org/preview/content/items/" ~ pt.id)
+                                .array
+                            );
                     }).array;
                 })
-                .join // flatten tags
                 .join // flatten exercises
                 .map!(exercise => "\"" ~ exercise.join("\",\"") ~ "\"")
                 .join("\n"))

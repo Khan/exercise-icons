@@ -18,32 +18,25 @@ import std.traits;
 JSONValue jsonify(T)(T t) {
     JSONValue ret = JSONValue();
     static if (is(T == string)) {
-        //ret.type = JSON_TYPE.STRING;
         ret.str = t;
         return ret;
     } else static if (is(T == int) || is(T == long)) {
-        //ret.type = JSON_TYPE.INTEGER;
         ret.integer = t;
         return ret;
     } else static if (is(T == uint) || is(T == ulong)) {
-        //ret.type = JSON_TYPE.UINTEGER;
         ret.uinteger = t;
         return ret;
     } else static if (is(T == float) || is(T == double)) {
-        //ret.type = JSON_TYPE.FLOAT;
         ret.floating = t;
         return ret;
     } else static if (is(T == bool)) {
         if (t) {
-            //ret.type = JSON_TYPE.TRUE;
             ret = true;
         } else {
-            //ret.type = JSON_TYPE.FALSE;
             ret = false;
         }
         return ret;
     } else static if (isStaticArray!(T) || isDynamicArray!(T)) {
-        //ret.type = JSON_TYPE.ARRAY;
         JSONValue arr[];
         foreach (v; t) {
             arr ~= jsonify(v);
@@ -51,7 +44,6 @@ JSONValue jsonify(T)(T t) {
         ret.array = arr;
         return ret;
     } else static if (isIterable!(T)) {
-        //ret.type = JSON_TYPE.OBJECT;
         JSONValue[string] reto;
 
         foreach (k, v; t) {
@@ -60,7 +52,6 @@ JSONValue jsonify(T)(T t) {
         ret.object = reto;
         return ret;
     } else {
-        //ret.type = JSON_TYPE.OBJECT;
         JSONValue[string] reto;
 
         enum members = [ __traits(allMembers, T) ];
