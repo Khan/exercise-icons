@@ -25,6 +25,7 @@ import core.thread;
 import std.algorithm;
 import std.ascii;
 import std.conv;
+import std.exception : enforce;
 import std.file;
 import std.functional;
 import std.json;
@@ -32,6 +33,7 @@ import std.net.curl;
 import std.parallelism;
 import std.process;
 import std.range;
+import std.string;
 import std.stdio;
 import std.utf;
 
@@ -40,17 +42,38 @@ import structures;
 import upload;
 
 alias writeToJSON = curry!(std.file.write, "build/problemTypes.json");
+alias writeToReport = curry!(std.file.write, "build/report.csv");
 
 int main(string args[]) {
-    if (args.length != 2) {
-        "Usage: ./sync.d Math.CC".writeln;
-        "  <or> ./sync.d Math.CC.3".writeln;
-        "  <or> ./sync.d Math.CC.3.MD".writeln;
-        "  <or> ./sync.d Math.CC.3.MD.B".writeln;
-        "  <or> ./sync.d Math.CC.3.MD.B.4".writeln;
+    bool[string] opts = args.pipe!(
+        filter!(arg => arg.startsWith("-")),
+        map!(opt => opt.chompPrefix("-")),
+        map!(opt => opt.chompPrefix("-")),
+        args => reduce!((memo, arg) { memo[arg] = true; return memo; })(
+            (bool[string]).init, args)
+    );
+    args = args
+        .filter!(arg => !arg.startsWith("-"))
+        .array;
+
+    if (args.length != 2 || opts.get("help", false)) {
+        "Usage: ./sync.d <opts> Math.CC".writeln;
+        "  <or> ./sync.d <opts> Math.CC.3".writeln;
+        "  <or> ./sync.d <opts> Math.CC.3.MD".writeln;
+        "  <or> ./sync.d <opts> Math.CC.3.MD.B".writeln;
+        "  <or> ./sync.d <opts> Math.CC.3.MD.B.4".writeln;
+        "".writeln;
+        "Opts: --dry-run: Don't actually upload anything to s3.".writeln;
+        "      --generate-report: Generates skills.csv giving information about each skill type for Elizabeth".writeln;
+        "      --help: Show this message".writeln;
         return 1;
     }
     string prefix = args[1];
+
+    foreach(opt, on; opts) {
+        enforce(["help", "dry-run", "generate-report"].countUntil(opt) != -1,
+            "Option '" ~ opt ~ "' is not white-listed.");
+    }
 
 
 
@@ -59,7 +82,7 @@ int main(string args[]) {
 
     auto allTags =
         "http://www.khanacademy.org/api/v1/assessment_items/tags"
-       .get
+        .get
         .replace("\\u0000", "") // Not a valid JSON control character
         .parseJSON
         .array
@@ -76,7 +99,7 @@ int main(string args[]) {
 
     auto allExercises =
         "http://www.khanacademy.org/api/v1/exercises"
-       .get
+        .get
         .replace("\\u0000", "") // Not a valid JSON control character
         .parseJSON
         .array
@@ -100,7 +123,7 @@ int main(string args[]) {
     foreach(tag; taskPool30.parallel(ccTags, 1)) {
         ("\t" ~ tag.name ~ "...").writeln;
 
-        tryUntilItWorksDammit(() {
+        tryForever(() {
             scope(failure) {
                 ("Something went wrong when downloading and parsing " ~ tag.name).writeln;
                 ("Tried to get http://www.khanacademy.org/api/v1/assessment_items?search=tag:" ~ tag.id).writeln;
@@ -129,6 +152,7 @@ int main(string args[]) {
 
         Thread.sleep( dur!"msecs"(1) );
     }
+
 
 
 
@@ -163,6 +187,51 @@ int main(string args[]) {
 
 
 
+    //////
+    if (opts.get("generate-report", false)) {
+        "Writting skill type report...".writeln;
+        ("CC tag\tSkill Name\tType\tPreview\tAssociated CC tags\n" ~
+            ccTags
+                .array // sort needs to know size
+                .sort!((tag1, tag2) => tag1.name < tag2.name)
+                .map!(delegate (tag) { return tag.exercises
+                    .sort!((ex1, ex2) => ex1.title < ex2.title)
+                    .uniq!((ex1, ex2) => ex1.title == ex2.title)
+                    .map!(delegate (exercise) { return
+                        exercise.isKhanExercise ?
+
+                            [[tag.name,
+                             exercise.title,
+                             "Legacy (see preview for count)",
+                             "http://sandcastle.kasandbox.org/media/castles/Khan:master/exercises/" ~ exercise.id.replace(" ", "_") ~ ".html",
+                             exercise.tags
+                                .map!(tag => tag.name)
+                                .filter!(thisTag => thisTag.startsWith("Math.CC"))
+                                .filter!(thisTag => thisTag != tag.name)
+                                .join(",")]] : 
+
+                        exercise.items
+                            .sort!((pt1, pt2) => pt1.problemTypeId < pt2.problemTypeId)
+                            .uniq!((pt1, pt2) => pt1.problemTypeId == pt2.problemTypeId)
+                            .map!((pt) => [ // define columns:
+                                tag.name,
+                                exercise.title,
+                                pt.problemTypeId.to!string,
+                                "https://www.khanacademy.org/preview/content/items/" ~ pt.id,
+                                pt.tags
+                                    .map!(tag => tag.name)
+                                    .filter!(thisTag => thisTag.startsWith("Math.CC"))
+                                    .filter!(thisTag => thisTag != tag.name)
+                                    .join(",")
+                        ]).array;
+                    }).array;
+                })
+                .join // flatten tags
+                .join // flatten exercises
+                .map!(exercise => "\"" ~ exercise.join("\",\"") ~ "\"")
+                .join("\n"))
+            .writeToReport;
+    }
     /////
     //"Checking for soon-to-be-made exercises...".writeln;
 
@@ -211,10 +280,12 @@ int main(string args[]) {
     auto i = screenshotItems.length;
 
     auto taskPool8 = new TaskPool(8);
-    auto s3Future = task!(() => new shared S3Connection);
-    taskPool8.put(s3Future);
+    auto s3Future = opts.get("dry-run", false) ? null : task!(() => new shared S3Connection);
+    if (s3Future) {
+        taskPool8.put(s3Future);
+    }
     foreach(item; taskPool8.parallel(screenshotItems)) {
-        tryUntilItWorksDammit(() {
+        tryForever(() {
             ("\tCapturing " ~ item ~ "...").writeln;
             scope(success) {
                 ("\t\t" ~ (--i).to!string ~ " to go...").writeln;
@@ -306,37 +377,41 @@ int main(string args[]) {
 
 
     /////
-    "Uploading...".writeln;
-    shared S3Connection s3 = s3Future.yieldForce();
+    if (!opts.get("dry-run", false)) {
+        "Uploading...".writeln;
+        shared S3Connection s3 = s3Future.yieldForce();
 
-    bool[string] allFiles;
-    foreach (item; parallel(screenshotItems)) {
-        tryUntilItWorksDammit(() {
-            auto prototype = "./build/" ~ item ~ ".png";
+        bool[string] allFiles;
+        foreach (item; parallel(screenshotItems)) {
+            tryForever(() {
+                auto prototype = "./build/" ~ item ~ ".png";
 
-            auto entries = dirEntries("./build", item ~ "*png", SpanMode.shallow);
-            assert(!entries.empty);
-            bool didAnything = false;
-            foreach(file; entries) {
-                auto serverName = file.array.retro.until("/").array.retro.to!string;
-                allFiles[serverName] = true;
-                didAnything = didAnything || s3.addOrUpdateFile(file.name, serverName);
-            }
+                auto entries = dirEntries("./build", item ~ "*png", SpanMode.shallow);
+                assert(!entries.empty);
+                bool didAnything = false;
+                foreach(file; entries) {
+                    auto serverName = file.array.retro.until("/").array.retro.to!string;
+                    allFiles[serverName] = true;
+                    didAnything = didAnything || s3.addOrUpdateFile(file.name, serverName);
+                }
 
-            if (didAnything) {
-                Thread.sleep( dur!"msecs"(500) );
-            }
-        });
-    }
+                if (didAnything) {
+                    Thread.sleep( dur!"msecs"(500) );
+                }
+            });
+        }
 
-    if (prefix == "Math.CC") {
-        s3.addOrUpdateFile("build/problemTypes.json", "problemTypes.json");
-        allFiles["problemTypes.json"] = true;
+        if (prefix == "Math.CC") {
+            s3.addOrUpdateFile("build/problemTypes.json", "problemTypes.json");
+            allFiles["problemTypes.json"] = true;
 
-        s3.removeFilesNotIn(allFiles);
+            s3.removeFilesNotIn(allFiles);
+        } else {
+            "WARNING: Not updating manifest because prefix was not Math.CC".writeln;
+            "Inspect problemTypes.json. If everything looks good, rerun with Math.CC".writeln;
+        }
     } else {
-        "WARNING: Not updating manifest because prefix was not Math.CC".writeln;
-        "Inspect problemTypes.json. If everything looks good, rerun with Math.CC".writeln;
+        "Not uploading because --dry-run was specified".writeln;
     }
 
 

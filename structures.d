@@ -85,6 +85,10 @@ int toIntSafe(T)(T t) {
     }
 }
 
+int problemTypeId(AssessmentItem item) {
+    return problemTypes([item]);
+}
+
 /**
  * A best **guess** at the number of problem types in a set of AssessmentItems.
  *
@@ -123,9 +127,9 @@ string exerciseNameGuess(AssessmentItem item) {
 }
 
 /**
- * Returns up to three assessment items of different types.
+ * Returns up to 'max' assessment items of different types.
  */
-AssessmentItem[] specimen(AssessmentItem[] items) {
+AssessmentItem[] specimen(AssessmentItem[] items, int max = 3) {
     AssessmentItem[] ret;
     int types = items.problemTypes;
     if (!types) {
@@ -153,8 +157,8 @@ AssessmentItem[] specimen(AssessmentItem[] items) {
             ret ~= item;
             break; // Don't get two captures from the same item
         }
-        if (ret.length == 3) {
-            // Don't get more than 3 captures per standard.
+        if (ret.length == max) {
+            // Don't get more than 'max' captures per standard.
             break;
         }
     }
@@ -191,14 +195,14 @@ T[string] indexBy(string field, T)(T[] items) {
 /**
  * The web isn't perfect, you know.
  */
-void tryUntilItWorksDammit(T)(T fn) {
+void tryForever(T)(T fn) {
     try {
         fn();
     } catch(Throwable e) {
         import core.thread;
         "Don't worry, I'm trying again...\n".writeln;
         Thread.sleep( dur!"seconds"(5) );
-        fn.tryUntilItWorksDammit();
+        fn.tryForever();
     }
 }
 
