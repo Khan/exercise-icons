@@ -18,7 +18,6 @@
  */
 
 var casper = require("casper").create();
-var addProximaNova = require('./add-proxima-nova.js');
 
 casper.on('remote.message', function(message) {
     console.log(message);
