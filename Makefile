@@ -1,3 +1,7 @@
+
+dirs:
+	mkdir -p build/raw build/types build/struggling build/mastered build/working build/small
+
 setup: s3
 	mkdir -p ./build
 	touch ./sync.d
