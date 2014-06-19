@@ -3,8 +3,17 @@ Exercise Icons
 Usage: capture.js [options]
 
     -h --help       Show this message
-    -f --file       get list of exercises to render from the given JSON file
-    -u --upload     upload to s3. Auth is taken from env variables S3_KEY,
-                    S3_SECRET and S3_BUCKET
+
+    -a --all        Shoot all exercises
+    -k --khan       Shoot only Khan Exercises
+    -p --perseus    Shoot only perseus exercists
+    -f --file       Shoot only the exercises specified in the following json
+                    file. - for stdin
+
+    -i --image      Don't take screenshots, just do the post-processing with
+                    imagemagick and then create the manifest file
     -m --manifest   Don't take screenshots, just create the manifest file
+
+    -u --upload     Upload to s3 after processing. Auth is taken from env
+                    variables S3_KEY, S3_SECRET and S3_BUCKET
 
