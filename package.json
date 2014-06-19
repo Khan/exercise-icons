@@ -1,0 +1,37 @@
+{
+  "name": "exercise-icons",
+  "version": "0.0.0",
+  "description": "Grab icons for exercises",
+  "main": "./lib/index.js",
+  "bin": {
+    "exercise-icons": "capture.js"
+  },
+  "dependencies": {
+    "async": "^0.9.0",
+    "progress": "^1.1.6",
+    "debug": "^1.0.2",
+    "glob": "^4.0.2",
+    "s3": "^2.0.0",
+    "spooky": "^0.2.4",
+    "subarg": "^0.0.1",
+    "gm": "^1.16.0",
+    "superagent": "^0.18.0",
+    "graceful-fs": "^3.0.2",
+    "casperjs": "^1.1.0-beta3",
+    "knox": "^0.9.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Khan/exercise-icons"
+  },
+  "author": "Jared Forsyth",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Khan/exercise-icons/issues"
+  },
+  "homepage": "https://github.com/Khan/exercise-icons"
+}
