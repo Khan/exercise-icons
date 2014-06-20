@@ -1,53 +1,80 @@
-# exercise-icons
 
-## Introduction
+# Exercise Icons
 
-'exercise-icons' creates an icon designed to be rendered anywhere from 64x64 to 256x256
-for every problem type in every [static](https://github.com/Khan/khan-exercises) and
-[Perseus](https://github.com/Khan/perseus) exercise on
-[Khan Academy](https://khanacademy.org). It also creates a JSON file listing the
-different problem types organized by tag. [CasperJS](http://casperjs.org/)
-and [ImageMagick](http://www.imagemagick.org/) are used to generate the icons.
-Resulting icons are uploaded to [Amazon EC2](https://aws.amazon.com/ec2/) via
-[libs3](https://s3.amazonaws.com/libs3.ischo.com/index.html).
+Screenshot khan and perseus exercises and then process the images for use by
+the commoncore map and the parent email. Soon to be used in various other
+contexts.
 
-This project is related to but independent from
-[exercise-screens](https://github.com/khan/exercise-screens). exercise-screens
-takes a screenshot of every __exercise__ on Khan Academy, whereas exercise-icons
-creates an icon for every problem __type__. There are usually multiple problem
-types per exercise. In addition, exercise-icons aims to create icons that look
-good anywhere from 64x64 to 256x256 by focusing on the most exciting area of an
-exercise, whereas exercise-screens aims to show the entire exercise.
+# Usage
 
-exercise-icons is primarily used to render the icons in the
-[Common Core map](https://www.khanacademy.org/commoncore/map#grade-6). It is
-likely that exercise-icons will be used to render icons in other places across
-the site in the future.
+<!-- this was copied from /bin/usage.txt. DON'T MODIFY unless you change that
+file too. -->
 
-## Setting up and running `exercise-icons`
+```sh
+Usage: ./bin/capture.js [options]
 
-    git clone https://github.com/jnetterf/exercise-icons.git
-    cd exercise-icons
-    $EDITOR ./secrets.txt
-    make setup
+    -h --help        Show this message
 
-... where $EDITOR is your favorite or favourite editor. secrets.txt should be
-filled with your S3 credentials and bucket name as follows:
+    -a --all         Shoot all exercises
+    -k --khan        Shoot only Khan Exercises
+    -p --perseus     Shoot only perseus exercists
+    -f --file [path] Shoot only the exercises specified in the following json
+                     file. - for stdin
 
-    ACCESS_KEY = "ACCESS_KEY",
-    SECRET_KEY = "SECRET_KEY",
-    BUCKET = "BUCKET_NAME"
+    -i --image       Don't take screenshots, just do the post-processing with
+                     imagemagick and then create the manifest file
+    -m --manifest    Don't take screenshots, just create the manifest file
 
-Then, to generate all icons used by the common core map:
+    -u --upload      Upload to s3 after processing. Auth is taken from env
+                     variables S3_KEY, S3_SECRET and S3_BUCKET
 
-    ./sync.d Math.CC
+Examples:
 
-exercise-icons requires [dlang](http://dlang.org/) (including rdmd), curl,
-casperjs, and imagemagick. libs3 is also used but is attached as a submodule.
+-a -u # shoot all and upload
+-k -u # shoot perseus and upload
+-i -u # don't shoot, just process and upload
+-m -u # don't shoot or process, just create the manifest and upload
+```
 
-## Running `exercise-icons`
+# High level overview
 
-exercise-icons should be run on every publish.
+1) making icons & and a manifest json file for common core
+2) making icons for parent emails &c
+
+## Common Core things
+
+### Icons
+
+One icon per "problem_type" for each exercise. This includes some fanciness for
+KhanExercises, because the different problem types are not declared explicitly.
+
+### Manifest JSON file
+
+The file is called `problemTypes.json`, and is also stored in the s3 bucket.
+It looks like
+
+```js
+[{
+    "Math.CC.party": {
+        "name": "Math.CC.party",
+        "skills": [{
+            name: "Human readable name of skill",
+            problemTypes: number of problem types,
+            specimen: ["xPartyPart", ..?], // length = number of problem types
+            isKhanExercise: ??? bool, // if yes, then problems
+            requiresTagging: ??? bool, // no klew
+            questions: integer, // number of questions that are awesome.
+            tagURLs: [???] // also nothing knwles
+        }, ...]
+    }
+}, ...]
+```
+
+## Parent emails
+
+1) take the first screenshot for each exercise (already generated from above)
+2) make circular, 70x70 versions, both red and blue tinted. This is done by
+compositing the template images in /assets with a shrunk screenshot.
 
 ## License
 exercise-icons is released under the terms of the MIT license. See COPYING.txt.
