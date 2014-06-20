@@ -1,13 +1,26 @@
 
 # Usage
 
+<!-- this was copied from /bin/usage.txt. DON'T MODIFY unless you change that
+file too. -->
+
 ```sh
-./iconify.js
-./iconify.js algebra_1 some_other_exercise_name ...
+Usage: ./bin/capture.js [options]
 
-Optins:
-    -c just do common core, not the post-processing for emails
+    -h --help       Show this message
 
+    -a --all        Shoot all exercises
+    -k --khan       Shoot only Khan Exercises
+    -p --perseus    Shoot only perseus exercists
+    -f --file       Shoot only the exercises specified in the following json
+                    file. - for stdin
+
+    -i --image      Don't take screenshots, just do the post-processing with
+                    imagemagick and then create the manifest file
+    -m --manifest   Don't take screenshots, just create the manifest file
+
+    -u --upload     Upload to s3 after processing. Auth is taken from env
+                    variables S3_KEY, S3_SECRET and S3_BUCKET
 ```
 
 # High level overview
