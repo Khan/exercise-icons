@@ -10,7 +10,7 @@ contexts.
 <!-- this was copied from /bin/usage.txt. DON'T MODIFY unless you change that
 file too. -->
 
-```sh
+```
 Usage: ./bin/capture.js [options]
 
     -h --help        Show this message
@@ -27,7 +27,9 @@ Usage: ./bin/capture.js [options]
 
     -u --upload      Upload to s3 after processing. Auth is taken from env
                      variables S3_KEY, S3_SECRET and S3_BUCKET
+```
 
+```sh
 Examples:
 
 -a -u # shoot all and upload
@@ -38,8 +40,8 @@ Examples:
 
 # High level overview
 
-1) making icons & and a manifest json file for common core
-2) making icons for parent emails &c
+1. making icons & and a manifest json file for common core
+2. making icons for parent emails &c
 
 ## Common Core things
 
@@ -72,8 +74,8 @@ It looks like
 
 ## Parent emails
 
-1) take the first screenshot for each exercise (already generated from above)
-2) make circular, 70x70 versions, both red and blue tinted. This is done by
+1. take the first screenshot for each exercise (already generated from above)
+2. make circular, 70x70 versions, both red and blue tinted. This is done by
 compositing the template images in /assets with a shrunk screenshot.
 
 ## License
