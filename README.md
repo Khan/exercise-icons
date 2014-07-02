@@ -38,6 +38,20 @@ Examples:
 -m -u # don't shoot or process, just create the manifest and upload
 ```
 
+# Secondary Script - Common Core spreadsheet
+
+```
+Usage: ./bin/cc-csv.js
+```
+
+This outputs to `./build/cc-tags.csv`, in the format of:
+
+```
+CC tag  |   skill name  |   associated tags     |   preview urls    |
+```
+
+This will be used quarterly to generate reports.
+
 # High level overview
 
 1. making icons & and a manifest json file for common core
