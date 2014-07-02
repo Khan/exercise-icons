@@ -52,6 +52,9 @@ CC tag  |   skill name  |   associated tags     |   preview urls    |
 
 This will be used quarterly to generate reports.
 
+**Note:** It requires that you have run at least `./bin/capture.js -m`
+previously, as it uses the generated `problemTypes.json` file.
+
 # High level overview
 
 1. making icons & and a manifest json file for common core
