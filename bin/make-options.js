@@ -2,7 +2,7 @@
  * Given a list of process.argv, construct an options dictionary, validating
  * it along the way.
  *
- * See usage.txt for options
+ * See ./usage.txt for options
  */
 
 var fs = require('fs');
@@ -18,14 +18,18 @@ function makeOptions(args) {
         process.exit(0);
     }
 
+    // See ./usage.txt for details
     var o = {
-        all:        args.a || args.all || false,
-        file:       args.f || args.file || false,
-        image:      args.i || args.image || false,
-        khan:       args.k || args.khan || false,
-        manifest:   args.m || args.manifest || false,
-        perseus:    args.p || args.perseus || false,
-        upload:     args.u || args.upload || false,
+        all:        args.a || args.all || false,      // shoot everything
+        khan:       args.k || args.khan || false,     // just shoot khan exercises
+        perseus:    args.p || args.perseus || false,  // just shoot perseus exercises
+        file:       args.f || args.file || false,     // just shoot images from the given file
+        'new':      args.n || args['new'] || false,   // keep current images - only take shots for images we don't have
+
+        image:      args.i || args.image || false,    // just perform post-processing on images, don't shoot
+        manifest:   args.m || args.manifest || false, // just generate the manifest, don't shoot
+
+        upload:     args.u || args.upload || false,   // upload to s3
     }
 
     o.shoot = !o.image && !o.manifest;

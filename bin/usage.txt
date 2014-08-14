@@ -9,6 +9,8 @@ Usage: ./bin/capture.js [options]
     -p --perseus     Shoot only perseus exercists
     -f --file [path] Shoot only the exercises specified in the following json
                      file. - for stdin
+    -n --new         Of the selected exercises, only shoot new images (keep
+                     the current images we have)
 
     -i --image       Don't take screenshots, just do the post-processing with
                      imagemagick and then create the manifest file
