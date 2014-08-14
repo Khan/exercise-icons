@@ -7,7 +7,7 @@
     "exercise-icons": "capture.js"
   },
   "dependencies": {
-    "async": "^0.9.0",
+    "async": "https://registry.npmjs.org/async/-/async-0.9.0.tgz",
     "casperjs": "^1.1.0-beta3",
     "cli-color": "^0.3.2",
     "debug": "^1.0.2",
@@ -16,6 +16,7 @@
     "graceful-fs": "^3.0.2",
     "knox": "^0.9.0",
     "lodash": "^2.4.1",
+    "mkdirp": "^0.5.0",
     "progress": "^1.1.6",
     "s3": "^2.0.0",
     "spooky": "^0.2.4",
