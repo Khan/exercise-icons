@@ -33,7 +33,7 @@ function makeOptions(args) {
 
         upload:     args.u || args.upload || false,   // upload to s3
 
-        parallel:   args.p || args.parallel || 200,   // how parallel do you want to be?
+        parallel:   args.l || args.parallel || 200,   // how parallel do you want to be?
     };
 
     o.shoot = !o.image && !o.manifest && !o.check;

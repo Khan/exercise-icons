@@ -34,7 +34,7 @@ Usage: ./bin/capture.js [options]
     -u --upload      Upload to s3 after processing. Auth is taken from env
                      variables S3_KEY, S3_SECRET and S3_BUCKET
 
-    -p --parallel [num]    How parallel do you want to be? Default: 200
+    -l --parallel [num]    How parallel do you want to be? Default: 200
 ```
 
 ```sh
