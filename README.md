@@ -7,19 +7,25 @@ contexts.
 
 # Usage
 
-<!-- this was copied from /bin/usage.txt. DON'T MODIFY unless you change that
-file too. -->
+<!-- *NOTE:* this was copied from /bin/usage.txt. DON'T MODIFY unless you change
+that file too. -->
 
 ```
+Exercise Icons
+
 Usage: ./bin/capture.js [options]
 
     -h --help        Show this message
+
+    -c --check       Just check for missing commoncore images
 
     -a --all         Shoot all exercises
     -k --khan        Shoot only Khan Exercises
     -p --perseus     Shoot only perseus exercists
     -f --file [path] Shoot only the exercises specified in the following json
                      file. - for stdin
+    -n --new         Of the selected exercises, only shoot new images (keep
+                     the current images we have)
 
     -i --image       Don't take screenshots, just do the post-processing with
                      imagemagick and then create the manifest file
@@ -27,14 +33,16 @@ Usage: ./bin/capture.js [options]
 
     -u --upload      Upload to s3 after processing. Auth is taken from env
                      variables S3_KEY, S3_SECRET and S3_BUCKET
+
+    -p --parallel [num]    How parallel do you want to be? Default: 200
 ```
 
 ```sh
 Examples:
 
+-a -n # only shoot new/missing exercises
 -a -u # shoot all and upload
 -k -u # shoot perseus and upload
--i -u # don't shoot, just process and upload
 -m -u # don't shoot or process, just create the manifest and upload
 ```
 

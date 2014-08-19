@@ -25,7 +25,7 @@ Usage: ./bin/capture.js [options]
 
 Examples:
 
+-a -n # only shoot new/missing exercises
 -a -u # shoot all and upload
 -k -u # shoot perseus and upload
--i -u # don't shoot, just process and upload
 -m -u # don't shoot or process, just create the manifest and upload
