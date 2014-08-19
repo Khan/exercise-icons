@@ -29,6 +29,7 @@ ensureDirs([
         console.log(err, err.stack)
         process.exit(1)
     }
+
     exerciseIcons(options, function(err) {
         if (err) {
             console.error('Script failed! In some way...');

@@ -20,6 +20,8 @@ function makeOptions(args) {
 
     // See ./usage.txt for details
     var o = {
+        check:      args.c || arcs.check || false,    // just check for missing CommonCore images
+
         all:        args.a || args.all || false,      // shoot everything
         khan:       args.k || args.khan || false,     // just shoot khan exercises
         perseus:    args.p || args.perseus || false,  // just shoot perseus exercises
@@ -34,7 +36,7 @@ function makeOptions(args) {
         parallel:   args.p || args.parallel || 200,   // how parallel do you want to be?
     }
 
-    o.shoot = !o.image && !o.manifest;
+    o.shoot = !o.image && !o.manifest && !o.check;
 
     if (o.khan + o.perseus + o.all > 1 ||
         (o.khan + o.perseus + o.all === 1 && o.file)) {

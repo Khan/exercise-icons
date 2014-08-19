@@ -4,6 +4,8 @@ Usage: ./bin/capture.js [options]
 
     -h --help        Show this message
 
+    -c --check       Just check for missing commoncore images
+
     -a --all         Shoot all exercises
     -k --khan        Shoot only Khan Exercises
     -p --perseus     Shoot only perseus exercists
