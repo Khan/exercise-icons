@@ -6,7 +6,7 @@
  * See usage.txt for options
  */
 
-var path = require('path')
+var path = require('path');
 
 var makeOptions = require('./make-options');
 var exerciseIcons = require('../lib');
@@ -14,7 +14,7 @@ var ensureDirs = require('./ensure-dirs');
 
 var options = makeOptions(process.argv.slice(2));
 
-var BASE = path.join(__dirname, '../build')
+var BASE = path.join(__dirname, '../build');
 ensureDirs([
     BASE,
     BASE + '/small',
@@ -25,9 +25,9 @@ ensureDirs([
     BASE + '/types'
 ], function (err) {
     if (err) {
-        console.warn('Failed to create build directories')
-        console.log(err, err.stack)
-        process.exit(1)
+        console.warn('Failed to create build directories');
+        console.log(err, err.stack);
+        process.exit(1);
     }
 
     exerciseIcons(options, function(err) {

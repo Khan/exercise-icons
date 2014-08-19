@@ -37,7 +37,7 @@ tags.forEach(function (tag) {
                           .concat(otherTags.slice(index + 1))
                           .join(','));
         if (skill.isKhanExercise) {
-            row.push('http://sandcastle.kasandbox.org/media/castles/Khan:master/exercises/' + skill.fileName)
+            row.push('http://sandcastle.kasandbox.org/media/castles/Khan:master/exercises/' + skill.fileName);
         } else {
             row = row.concat(skill.specimen.map(function (id) {
                 return "https://www.khanacademy.org/preview/content/items/" + id;

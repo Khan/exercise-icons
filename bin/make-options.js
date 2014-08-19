@@ -6,7 +6,7 @@
  */
 
 var fs = require('fs');
-var subarg = require('subarg')
+var subarg = require('subarg');
 var debug = require('debug')('exicons:cli');
 
 function makeOptions(args) {
@@ -20,7 +20,7 @@ function makeOptions(args) {
 
     // See ./usage.txt for details
     var o = {
-        check:      args.c || arcs.check || false,    // just check for missing CommonCore images
+        check:      args.c || args.check || false,    // just check for missing CommonCore images
 
         all:        args.a || args.all || false,      // shoot everything
         khan:       args.k || args.khan || false,     // just shoot khan exercises
@@ -34,7 +34,7 @@ function makeOptions(args) {
         upload:     args.u || args.upload || false,   // upload to s3
 
         parallel:   args.p || args.parallel || 200,   // how parallel do you want to be?
-    }
+    };
 
     o.shoot = !o.image && !o.manifest && !o.check;
 
