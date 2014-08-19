@@ -30,6 +30,8 @@ function makeOptions(args) {
         manifest:   args.m || args.manifest || false, // just generate the manifest, don't shoot
 
         upload:     args.u || args.upload || false,   // upload to s3
+
+        parallel:   args.p || args.parallel || 200,   // how parallel do you want to be?
     }
 
     o.shoot = !o.image && !o.manifest;
