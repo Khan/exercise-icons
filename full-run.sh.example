@@ -1,5 +1,0 @@
-# Kick off the exercise icon scraping process
-#
-cd $HOME/exercise-icons
-# Add DEBUG=* below for more verbosity
-S3_KEY=<key> S3_SECRET=<secret> S3_BUCKET=<bucket> ./bin/capture.js -u -a -l 1
