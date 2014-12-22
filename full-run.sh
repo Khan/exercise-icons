@@ -10,7 +10,7 @@
 
 cd $HOME/exercise-icons
 
-. secrets.sh
+. ./secrets.sh
 export S3_KEY S3_SECRET S3_BUCKET
 
 # Prepend  DEBUG=* on the line below for more verbosity
