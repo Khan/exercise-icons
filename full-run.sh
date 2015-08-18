@@ -14,4 +14,4 @@ cd $HOME/exercise-icons
 export S3_KEY S3_SECRET S3_BUCKET
 
 # Prepend  DEBUG=* on the line below for more verbosity
-./bin/capture.js -u -a -l 1
+./bin/capture.js --upload --all --parallel 1
