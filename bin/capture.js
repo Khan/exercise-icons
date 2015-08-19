@@ -22,7 +22,8 @@ ensureDirs([
     BASE + '/raw',
     BASE + '/mastered',
     BASE + '/struggling',
-    BASE + '/types'
+    BASE + '/types',
+    BASE + '/thumbs'
 ], function (err) {
     if (err) {
         console.warn('Failed to create build directories');
