@@ -44,7 +44,6 @@ function shootKhan(page, name, dest) {
         $("div.qtip").hide();
     });
     var filename = dest + '/' + name + '.png';
-    console.log('Capturing khan ' + name);
 
     var box = page.evaluate(getInterestingBox);
     page.clipRect = box;
@@ -57,22 +56,38 @@ function shootPerseus(page, name, item, dest) {
     slimer.wait(500);
 
     var filename = dest + '/' + name + '.png';
-    console.log('Capturing perseus ' + name);
 
     var box = page.evaluate(getInterestingBox);
     page.clipRect = box;
     page.render(filename);
 }
 
-var page = require("webpage").create();
+var webpage = require('webpage');
 var fs = require('fs');
 var exercises = JSON.parse(fs.readFileSync('exercises.json'));
 
-function shootExercises(currIndex) {
-    if (currIndex >= exercises.length) {
+// Run more than one page at a time, for parallelism or something.
+var numPages = 2;
+
+var finishedPages = 0;
+function finish() {
+    finishedPages++;
+    if (finishedPages === numPages) {
         slimer.exit();
+    }
+}
+
+var finishedShots = 0;
+function doLog(type, name) {
+    finishedShots++;
+    console.log(finishedShots + " / " + exercises.length + " - " + type + ": " + name);
+}
+
+function shootExercises(page, currIndex) {
+    if (currIndex >= exercises.length) {
+        finish();
 /*    } else if (exercises[currIndex].type === "khan-exercises") {
-        shootExercises(currIndex + 1); */
+        shootExercises(page, currIndex + numPages); */
     } else {
         var exercise = exercises[currIndex];
         var url;
@@ -84,14 +99,18 @@ function shootExercises(currIndex) {
 
         page.open(url)
             .then(function() {
-                console.log(currIndex + " / " + exercises.length);
                 if (exercise.type === "khan-exercises") {
                     shootKhan(page, exercise.name, 'slimerraw');
                 } else {
                     shootPerseus(page, exercise.name, 'slimerraw');
                 }
-                shootExercises(currIndex + 1);
+                doLog(exercise.type, exercise.name);
+                shootExercises(page, currIndex + numPages);
             });
     }
 }
-shootExercises(0);
+
+for (var i = 0; i < numPages; i++) {
+    var page = webpage.create();
+    shootExercises(page, i);
+}
