@@ -3,4 +3,4 @@ build
 *.swp
 logs
 data
-slimerraw/
+slimer-*
