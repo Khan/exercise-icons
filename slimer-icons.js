@@ -42,6 +42,7 @@ function shootKhan(page, name, dest) {
     slimer.wait(1000);
     page.evaluate(function() {
         $("div.qtip").hide();
+        $("input").blur();
     });
     var filename = dest + '/' + name + '.png';
 
@@ -50,11 +51,15 @@ function shootKhan(page, name, dest) {
     page.render(filename);
 }
 
-function shootPerseus(page, name, item, dest) {
+function shootPerseus(page, name, dest) {
     waitForSelector(page, "div.perseus-renderer");
     waitForImages(page);
     slimer.wait(500);
 
+    page.evaluate(function() {
+        $("div.qtip").hide();
+        $("input").blur();
+    });
     var filename = dest + '/' + name + '.png';
 
     var box = page.evaluate(getInterestingBox);
