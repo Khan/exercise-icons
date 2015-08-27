@@ -31,37 +31,41 @@
 
 var OUTDIR = "slimer-raw";
 
-function waitForSelector(page, selector) {
-    while (true) {
-        var exists = page.evaluate(function(selector) {
-            return !!document.querySelector(selector);
-        }, selector);
+function waitForSelector(page, selector, done) {
+    var exists = page.evaluate(function(selector) {
+        return !!document.querySelector(selector);
+    }, selector);
 
-        if (exists) {
-            break;
-        } else {
-            slimer.wait(100);
-        }
+    if (exists) {
+        done();
+    } else {
+        setTimeout(function() {
+            waitForSelector(page, selector, done);
+        }, 100);
     }
 }
 
-function waitForImages(page) {
-    while (true) {
-        var loaded = page.evaluate(function() {
-            var good = true;
-            $("img").each(function(i, img) {
-                if (!img.complete) {
-                    good = false;
-                }
-            });
-            return good;
-        });
-
-        if (loaded) {
-            break;
-        } else {
-            slimer.wait(100);
+function waitForImages(page, done) {
+    var loaded = page.evaluate(function() {
+        if (!$ || !_) {
+            return false;
         }
+
+        var good = true;
+        $("img").each(function(i, img) {
+            if (!img.complete) {
+                good = false;
+            }
+        });
+        return good;
+    });
+
+    if (loaded) {
+        done();
+    } else {
+        setTimeout(function() {
+            waitForImages(page, done);
+        }, 100);
     }
 }
 
@@ -140,37 +144,44 @@ function getInterestingBox() {
 }
 
 
-function shootKhan(page, name, dest) {
+function shootKhan(page, name, dest, done) {
     page.evaluate(addProximaNova);
-    waitForSelector(page, "#workarea");
-    waitForImages(page);
-    slimer.wait(1000);
-    page.evaluate(function() {
-        $("body").removeClass("debug");
-        $("div.qtip").hide();
-        $("input").blur();
-    });
-    var filename = dest + '/' + name + '.png';
+    waitForSelector(page, "#workarea", function() {
+        waitForImages(page, function() {
+            setTimeout(function() {
+                page.evaluate(function() {
+                    $("body").removeClass("debug");
+                    $("div.qtip").hide();
+                    $("input").blur();
+                });
+                var filename = dest + '/' + name + '.png';
 
-    var box = page.evaluate(getInterestingBox);
-    page.clipRect = box;
-    page.render(filename);
+                var box = page.evaluate(getInterestingBox);
+                page.clipRect = box;
+                page.render(filename);
+                done();
+            }, 1000);
+        });
+    });
 }
 
-function shootPerseus(page, name, dest) {
-    waitForSelector(page, "div.perseus-renderer");
-    waitForImages(page);
-    slimer.wait(500);
+function shootPerseus(page, name, dest, done) {
+    waitForSelector(page, "div.perseus-renderer", function() {
+        waitForImages(page, function() {
+            setTimeout(function() {
+                page.evaluate(function() {
+                    $("div.qtip").hide();
+                    $("input").blur();
+                });
+                var filename = dest + '/' + name + '.png';
 
-    page.evaluate(function() {
-        $("div.qtip").hide();
-        $("input").blur();
+                var box = page.evaluate(getInterestingBox);
+                page.clipRect = box;
+                page.render(filename);
+                done();
+            }, 500);
+        });
     });
-    var filename = dest + '/' + name + '.png';
-
-    var box = page.evaluate(getInterestingBox);
-    page.clipRect = box;
-    page.render(filename);
 }
 
 var webpage = require('webpage');
@@ -178,7 +189,7 @@ var fs = require('fs');
 var exercises = JSON.parse(fs.readFileSync('exercises.json'));
 
 // Run more than one page at a time, for parallelism or something.
-var numPages = 2;
+var numPages = 1;
 
 var finishedPages = 0;
 function finish() {
@@ -189,17 +200,25 @@ function finish() {
 }
 
 var finishedShots = 0;
-function doLog(type, name) {
+function doLog(index, type, name) {
     finishedShots++;
-    console.log(finishedShots + " / " + exercises.length + " - " + type + ": " + name);
+    console.log(finishedShots + " / " + exercises.length + " (" + (index + 1) + ")" +
+                " - " + type + ": " + name);
 }
+
+var timeout;
 
 function shootExercises(page, currIndex) {
     if (currIndex >= exercises.length) {
         finish();
-/*    } else if (exercises[currIndex].type === "khan-exercises") {
+/*    } else if (exercises[currIndex].name === "tien-scaling-5") {
         shootExercises(page, currIndex + numPages); */
     } else {
+        clearTimeout(timeout);
+        timeout = setTimeout(function() {
+            shootExercises(page, currIndex + numPages);
+        }, 20000);
+
         var exercise = exercises[currIndex];
         var url;
         if (exercise.type === "khan-exercises") {
@@ -210,18 +229,33 @@ function shootExercises(page, currIndex) {
 
         page.open(url)
             .then(function() {
-                if (exercise.type === "khan-exercises") {
-                    shootKhan(page, exercise.name, OUTDIR);
-                } else {
-                    shootPerseus(page, exercise.name, OUTDIR);
+                function done() {
+                    doLog(currIndex, exercise.type, exercise.name);
+                    clearTimeout(timeout);
+                    shootExercises(page, currIndex + numPages);
                 }
-                doLog(exercise.type, exercise.name);
-                shootExercises(page, currIndex + numPages);
+
+                if (exercise.type === "khan-exercises") {
+                    shootKhan(page, exercise.name, OUTDIR, done);
+                } else {
+                    shootPerseus(page, exercise.name, OUTDIR, done);
+                }
             });
     }
 }
 
 for (var i = 0; i < numPages; i++) {
     var page = webpage.create();
+    /*
+    page.onError = function(message) {
+        console.log("Error: " + message);
+    };
+    page.onResourceError = function(message) {
+        console.log("Resource error: " + JSON.stringify(message));
+    };
+    page.onConsoleMessage = function(message) {
+        console.log("Console message: " + message);
+    };
+    */
     shootExercises(page, i);
 }
