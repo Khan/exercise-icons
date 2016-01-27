@@ -14,7 +14,7 @@ cd $HOME/exercise-icons
 export S3_KEY S3_SECRET S3_BUCKET
 
 # We need to make sure we pick up the right versions of casperjs and phantomjs.
-export PATH="$PWD/node_modules/casperjs/bin:$PWD/node_modules/casperjs/node_modules/phantomjs/bin:$PATH"
+export PATH="$PWD/node_modules/casperjs/bin:$PWD/node_modules/phantomjs/bin:$PATH"
 
 # Prepend  DEBUG=* on the line below for more verbosity
 ./bin/capture.js --upload --all --parallel 1
